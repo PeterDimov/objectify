@@ -71,8 +71,10 @@ class LoadCollectionRefsTests extends TestBase {
 		final Other other = new Other();
 		ofy().save().entity(other).now();
 
+		final Ref<Other> ref = Ref.create(other);
+		ofy().load().ref(ref);
 		final Thing thing = new Thing();
-		thing.others.add(Ref.create(other));
+		thing.others.add(ref);
 
 		final Thing fetched = saveClearLoad(thing);
 		assertThat(fetched.others).isEqualTo(thing.others);

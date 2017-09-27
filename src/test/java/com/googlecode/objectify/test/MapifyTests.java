@@ -181,6 +181,7 @@ class MapifyTests extends TestBase {
 
 		final HasMapifyTrivial hasMap = new HasMapifyTrivial();
 		hasMap.trivials.put(trivKey, Ref.create(triv));
+		ofy().load().ref(hasMap.trivials.get(trivKey)); // so we can deref in assertion below
 
 		final HasMapifyTrivial fetched = saveClearLoad(hasMap);
 

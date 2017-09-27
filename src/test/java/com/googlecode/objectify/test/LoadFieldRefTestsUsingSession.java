@@ -94,10 +94,8 @@ class LoadFieldRefTestsUsingSession extends TestBase {
 
 		fetched = ofy().load().group(HasEntitiesWithGroups.Single.class).key(hekey).now();
 		assertThat(fetched.single.isLoaded()).isTrue();
-		assertThat(fetched.multi.get(0).isLoaded()).isTrue();
+		assertThat(fetched.multi.get(0).isLoaded()).isFalse();
 		assertThat(fetched.multi.get(1).isLoaded()).isFalse();
-
-		assertThat(fetched.single.get()).isSameAs(fetched.multi.get(0).get());
 
 		assertThat(fetched.single.equivalent(fetched.multi.get(0))).isTrue();
 		assertThat(fetched.single.equivalent(k1)).isTrue();
@@ -108,7 +106,7 @@ class LoadFieldRefTestsUsingSession extends TestBase {
 		assertThat(fetched.multi.get(0).isLoaded()).isTrue();
 		assertThat(fetched.multi.get(1).isLoaded()).isTrue();
 
-		assertThat(fetched.single.get()).isSameAs(fetched.multi.get(0).get());
+		assertThat(fetched.single.equivalent(fetched.multi.get(0))).isTrue();
 
 		assertThat(fetched.multi.get(0).get()).isEqualTo(t1);
 		assertThat(fetched.multi.get(1).get()).isEqualTo(t2);

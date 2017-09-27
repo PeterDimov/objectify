@@ -96,13 +96,12 @@ public class LoadEngine
 	 * @param rootEntity is the entity key which holds this property (possibly through some level of embedded objects)
 	 */
 	public <T> Ref<T> makeRef(Key<?> rootEntity, LoadConditions loadConditions, Key<T> key) {
-		Ref<T> ref = new LiveRef<>(key, ofy);
-
 		if (shouldLoad(loadConditions)) {
-			load(key);
+			Result<T> res = load(key);
+			return new LiveRef<>(key, res);
+		} else {
+			return new LiveRef<>(key);
 		}
-
-		return ref;
 	}
 
 	/**

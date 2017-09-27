@@ -200,22 +200,20 @@ class LoadFieldRefTests extends TestBase {
 		ofy().clear();
 		fetched = ofy().load().group(HasEntitiesWithGroups.Single.class).key(hekey).now();
 		assertThat(fetched.single.isLoaded()).isTrue();
-		assertThat(fetched.multi.get(0).isLoaded()).isTrue();
+		assertThat(fetched.multi.get(0).isLoaded()).isFalse(); // same key as single but ref was not loaded
 		assertThat(fetched.multi.get(1).isLoaded()).isFalse();
 
 		assertThat(fetched.single.equivalent(fetched.multi.get(0))).isTrue();
-		assertThat(fetched.single.get()).isSameAs(fetched.multi.get(0).get());
 
 		assertThat(fetched.single.get()).isEqualTo(t1);
 
 		ofy().clear();
 		fetched = ofy().load().group(HasEntitiesWithGroups.Multi.class).key(hekey).now();
-		assertThat(fetched.single.isLoaded()).isTrue();
+		assertThat(fetched.single.isLoaded()).isFalse(); // same key as multi.get(0) but ref wasn't loaded
 		assertThat(fetched.multi.get(0).isLoaded()).isTrue();
 		assertThat(fetched.multi.get(1).isLoaded()).isTrue();
 
 		assertThat(fetched.multi.get(0).equivalent(fetched.single)).isTrue();
-		assertThat(fetched.single.get()).isSameAs(fetched.multi.get(0).get());
 
 		assertThat(fetched.multi.get(0).get()).isEqualTo(t1);
 		assertThat(fetched.multi.get(1).get()).isEqualTo(t2);

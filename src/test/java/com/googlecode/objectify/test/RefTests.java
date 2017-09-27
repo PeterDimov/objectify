@@ -8,6 +8,7 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.LoadResult;
 import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.RefNotLoadedException;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Load;
@@ -22,6 +23,7 @@ import java.io.Serializable;
 import static com.google.common.truth.Truth.assertThat;
 import static com.googlecode.objectify.ObjectifyService.factory;
 import static com.googlecode.objectify.ObjectifyService.ofy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests the behavior of Refs.
@@ -62,10 +64,7 @@ class RefTests extends TestBase {
 	@Test
 	void standaloneLoad() throws Exception {
 		final Ref<Trivial> ref = Ref.create(k1);
-
-		final Trivial loaded = ref.get();
-		assertThat(ref.isLoaded()).isTrue();
-		assertThat(loaded).isEqualTo(t1);
+		assertThrows(RefNotLoadedException.class, () -> ref.get());
 	}
 
 	/** */

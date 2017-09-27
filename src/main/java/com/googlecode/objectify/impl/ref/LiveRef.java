@@ -1,9 +1,12 @@
 package com.googlecode.objectify.impl.ref;
 
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.LoadResult;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.RefNotLoadedException;
+import com.googlecode.objectify.Result;
 
 import java.io.ObjectStreamException;
 
@@ -19,7 +22,7 @@ public class LiveRef<T> extends Ref<T>
 	private static final long serialVersionUID = 1L;
 
 	/** So that Refs can be associated with a session */
-	protected transient Objectify ofy;
+	protected transient Result<T> result;
 
 	/** For GWT serialization */
 	protected LiveRef() {}
@@ -28,15 +31,22 @@ public class LiveRef<T> extends Ref<T>
 	 * Create a Ref based on the key
 	 */
 	public LiveRef(Key<T> key) {
-		this(key, ObjectifyService.ofy());
+		this(key, null);
 	}
 
 	/**
 	 * Create a Ref based on the key, with the specified session
 	 */
-	public LiveRef(Key<T> key, Objectify ofy) {
+	public LiveRef(Key<T> key, Result<T> result) {
 		super(key);
-		this.ofy = ofy;
+		this.result = result;
+	}
+
+	/**
+	 * Update the result loaded for key.
+	 */
+	public void setResult(Result<T> result) {
+		this.result = result;
 	}
 
 	/* (non-Javadoc)
@@ -44,7 +54,10 @@ public class LiveRef<T> extends Ref<T>
 	 */
 	@Override
 	public T get() {
-		return ofy().load().now(key());
+		if (result == null) {
+			throw new RefNotLoadedException(key);
+		}
+		else return result.now();
 	}
 
 	/* (non-Javadoc)
@@ -52,18 +65,7 @@ public class LiveRef<T> extends Ref<T>
 	 */
 	@Override
 	public boolean isLoaded() {
-		return ofy().isLoaded(key());
-	}
-
-	/**
-	 * Get the current objectify instance associated with this ref
-	 */
-	private Objectify ofy() {
-		// If we have an expired transaction context, we need a new context
-		if (ofy == null || (ofy.getTransaction() != null && !ofy.getTransaction().isActive()))
-			ofy = ObjectifyService.ofy();
-
-		return ofy;
+		return result != null;
 	}
 
 	/**
@@ -73,5 +75,4 @@ public class LiveRef<T> extends Ref<T>
 	protected Object writeReplace() throws ObjectStreamException {
 		return new DeadRef<>(key(), getValue());
 	}
-
 }

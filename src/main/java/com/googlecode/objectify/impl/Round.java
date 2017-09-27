@@ -4,6 +4,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.Result;
+import com.googlecode.objectify.impl.ref.LiveRef;
 import com.googlecode.objectify.impl.translate.SaveContext;
 import com.googlecode.objectify.util.ResultCache;
 import com.googlecode.objectify.util.ResultNow;
@@ -96,9 +97,16 @@ class Round {
 						public com.google.appengine.api.datastore.Key saveRef(Ref<?> value, LoadConditions loadConditions) {
 							com.google.appengine.api.datastore.Key key = super.saveRef(value, loadConditions);
 
+							// If a ref is now being loaded, update (upgrade) the ref. But if it's not being loaded,
+							// don't unset it. I don't quite like this behavior (would like to unset it) but with the
+							// same object only saved in the session once and possibly loaded in different arrangements
+							// from different call sites, we cannot affort to reset it.
 							if (loadEngine.shouldLoad(loadConditions)) {
 								log.trace("Upgrading key {}", key);
 								loadEngine.load(value.key());
+
+								Result<?> result = loadEngine.load(value.key());
+								((LiveRef) value).setResult(result);
 							}
 
 							return key;
@@ -106,7 +114,16 @@ class Round {
 					};
 
 					// We throw away the saved entity and we are done
-					loadEngine.ofy.factory().getMetadataForEntity(thing).save(thing, saveCtx);
+					EntityMetadata<T> meta = loadEngine.ofy.factory().getMetadataForEntity(thing);
+					meta.save(thing, saveCtx);
+
+					// We need to update the parent ref, if needed
+					if (key.getParent() != null && meta.getKeyMetadata().shouldLoadParent(getLoadArrangement())) {
+						Result res = loadEngine.load(key.getParent());
+						Ref ref = new LiveRef(key.getParent(), res);
+
+						meta.getKeyMetadata().updateParentRef_HACK(thing, ref);
+					}
 				}
 			}
 		}

@@ -10,6 +10,7 @@ import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.Result;
 import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Loader;
+import com.googlecode.objectify.impl.ref.LiveRef;
 import com.googlecode.objectify.impl.translate.LoadContext;
 import com.googlecode.objectify.util.ResultCache;
 import com.googlecode.objectify.util.ResultNowFunction;
@@ -18,6 +19,7 @@ import com.googlecode.objectify.util.ResultProxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +90,9 @@ class LoaderImpl extends Queryable<Object> implements Loader
 	 */
 	@Override
 	public <E> LoadResult<E> ref(final Ref<E> ref) {
-		return key(ref.key());
+		LoadResult<E> result = key(ref.key());
+		((LiveRef<E>) ref).setResult(result);
+		return result;
 	}
 
 	/* (non-Javadoc)
@@ -189,8 +193,17 @@ class LoaderImpl extends Queryable<Object> implements Loader
 		final LoadEngine engine = createLoadEngine();
 
 		final Map<Key<E>, Result<E>> results = new LinkedHashMap<>();
-		for (final Key<E> key: keys)
-			results.put(key, engine.load(key));
+		final Iterator<?> valuesIterator = values.iterator();
+		for (Key<E> key: keys) {
+			Result<E> result = engine.load(key);
+			results.put(key, result);
+
+			// if the original value is a Ref, make sure we load it as well
+			Object value = valuesIterator.next();
+			if (value instanceof LiveRef) {
+				((LiveRef<E>) value).setResult(result);
+			}
+		}
 
 		engine.execute();
 

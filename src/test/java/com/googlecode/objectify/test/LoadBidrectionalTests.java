@@ -62,6 +62,8 @@ class LoadBidrectionalTests extends TestBase {
 		final Top topFetched = ofy().load().entity(top).now();
 		final Bottom bottomFetched = ofy().load().entity(bottom).now();
 
+		ofy().load().ref(top.bottom); // so we can deref in assertion below
+
 		assertThat(topFetched.bottom.get()).isSameAs(bottomFetched);
 		assertThat(bottomFetched.top.get()).isSameAs(topFetched);
 	}
