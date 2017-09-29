@@ -105,8 +105,7 @@ class Round {
 								log.trace("Upgrading key {}", key);
 								loadEngine.load(value.key());
 
-								Result<?> result = loadEngine.load(value.key());
-								((LiveRef) value).setResult(result);
+								loadEngine.loadRef((LiveRef) value);
 							}
 
 							return key;
@@ -119,9 +118,8 @@ class Round {
 
 					// We need to update the parent ref, if needed
 					if (key.getParent() != null && meta.getKeyMetadata().shouldLoadParent(getLoadArrangement())) {
-						Result res = loadEngine.load(key.getParent());
-						Ref ref = new LiveRef(key.getParent(), res);
-
+						LiveRef ref = new LiveRef(key.getParent());
+						loadEngine.loadRef(ref);
 						meta.getKeyMetadata().updateParentRef_HACK(thing, ref);
 					}
 				}

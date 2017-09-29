@@ -3,6 +3,7 @@ package com.googlecode.objectify.impl.ref;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.LoadResult;
 import com.googlecode.objectify.Objectify;
+import com.googlecode.objectify.ObjectifyOptions;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.RefNotLoadedException;
@@ -45,7 +46,7 @@ public class LiveRef<T> extends Ref<T>
 	/**
 	 * Update the result loaded for key.
 	 */
-	public void setResult(Result<T> result) {
+	public void setResult(Result<T> result, ObjectifyOptions options) {
 		this.result = result;
 	}
 

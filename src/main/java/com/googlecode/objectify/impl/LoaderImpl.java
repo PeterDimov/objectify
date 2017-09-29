@@ -91,7 +91,7 @@ class LoaderImpl extends Queryable<Object> implements Loader
 	@Override
 	public <E> LoadResult<E> ref(final Ref<E> ref) {
 		LoadResult<E> result = key(ref.key());
-		((LiveRef<E>) ref).setResult(result);
+		((LiveRef<E>) ref).setResult(result, ofy.getOptions());
 		return result;
 	}
 
@@ -201,7 +201,7 @@ class LoaderImpl extends Queryable<Object> implements Loader
 			// if the original value is a Ref, make sure we load it as well
 			Object value = valuesIterator.next();
 			if (value instanceof LiveRef) {
-				((LiveRef<E>) value).setResult(result);
+				((LiveRef<E>) value).setResult(result, ofy.getOptions());
 			}
 		}
 
