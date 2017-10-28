@@ -23,7 +23,7 @@ public class ObjectifyOptions {
 	private final boolean mandatoryTransactions;
 	private final RefLoadListener refLoadListener;
 
-	ObjectifyOptions() {
+	public ObjectifyOptions() {
 		this(true, Consistency.STRONG, null, false, null);
 	}
 

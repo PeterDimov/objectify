@@ -49,9 +49,9 @@ public class ObjectifyImpl implements Objectify, Closeable
 
 	/**
 	 */
-	public ObjectifyImpl(final ObjectifyFactory fact) {
+	public ObjectifyImpl(final ObjectifyFactory fact, final ObjectifyOptions options) {
 		this.factory = fact;
-		this.options = new ObjectifyOptions();
+		this.options = options;
 		this.transactor = new TransactorNo(this);
 	}
 
